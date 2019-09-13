@@ -25,11 +25,25 @@ O Pipeline do Jenkins é feito escrevendo em um arquivo de texto chamado `Jenkin
 
 ### Exemplo
 
-1. Dentro do seu projeto, crie um arquivo chamado `Jenkinsfile` (igual ao deste repositório)
+1. Dentro do seu projeto, crie um arquivo chamado `Jenkinsfile`
+ 
+Exemplo Java: Jenkinsfile
+```
+pipeline {
+    agent { docker { image 'maven:3.3.3' } }
+    stages {
+        stage('build') {
+            steps {
+                sh 'mvn --version'
+            }
+        }
+    }
+}
+```
 
 2. Clique em **New Item** no menu do Jenkins.
 
-![](https://jenkins.io/doc/book/resources/pipeline/classic-ui-left-column.png)
+<img src="https://jenkins.io/doc/book/resources/pipeline/classic-ui-left-column.png" alt="menu jenkins" width="200">
 
 3. Dê um nome para seu novo item e selecione **Multibranch Pipeline**
 
