@@ -51,7 +51,7 @@ pipeline {
 
 5. Clique em **Save** e veja seu novo Pipelne rodar.
 
-POde ser necessário modificar um dos exemplos do `Jenkinsfile` para rodar com seu projeto. Tente modificar o comando `sh` para rodar o mesmo comando utilizado par rodar o programa localmente em sua máquina.
+Pode ser necessário modificar um dos exemplos do `Jenkinsfile` para rodar com seu projeto. Tente modificar o comando `sh` para rodar o mesmo comando utilizado par rodar o programa localmente em sua máquina.
 
 Depois de configurar seu Pipeline, o Jenkins irá detectar automaticamente cada nova Branch ou Pull Request do seu repositório e começará a rodar os Pipelines para eles.
 
@@ -69,9 +69,9 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'echo "Hello World"'
+                sh 'echo "Olá mundo"'
                 sh '''
-                    echo "Multiline shell steps works too"
+                    echo "Multiline shell funciona também"
                     ls -lah
                 '''
             }
@@ -136,34 +136,27 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                sh 'echo "Fail!"; exit 1'
+                sh 'echo "Falha!"; exit 1'
             }
         }
     }
     post {
         always {
-            echo 'This will always run'
+            echo 'Isto rodará sempre'
         }
         success {
-            echo 'This will run only if successful'
+            echo 'Isto rodará apenas se for sucesso'
         }
         failure {
-            echo 'This will run only if failed'
+            echo 'Isto rodará apenas se falhar'
         }
         unstable {
-            echo 'This will run only if the run was marked as unstable'
+            echo 'Isto rodará apenas se passar com instabilidade'
         }
         changed {
-            echo 'This will run only if the state of the Pipeline has changed'
-            echo 'For example, if the Pipeline was previously failing but is now successful'
+            echo 'Isto rodar apenas se o Pipeline tiver alterações'
+            echo 'Por exemplo, se o Pipeline falhou anteriormente e agora passou'
         }
     }
 }
 ```
-
-
-
-
-
-
-
