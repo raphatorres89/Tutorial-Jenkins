@@ -41,4 +41,115 @@ POde ser necessário modificar um dos exemplos do `Jenkinsfile` para rodar com s
 
 Depois de configurar seu Pipeline, o Jenkins irá detectar automaticamente cada nova Branch ou Pull Request do seu repositório e começará a rodar os Pipelines para eles.
 
+## Rodando múltiplos passos (steps)
+
+Pipelines são formados por várias etapas que lhe permitem buildar, testar e deployar suas aplicações. Os Pipelines proporcionam ordenar diversos passos de forma simples para ajudar a automatizar os processos.
+
+Imagine a "etapa" como um comando único que gera uma única ação. Quando a etapa têm sucesso, ela move para a próxima. Quando a etapa falha, o Pipeline irá falhar.
+
+Quando todas as etapas passarem, o Pipeline considerará a execução feita com sucesso.
+
+```
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'echo "Hello World"'
+                sh '''
+                    echo "Multiline shell steps works too"
+                    ls -lah
+                '''
+            }
+        }
+    }
+}
+```
+
+### Timeouts, retries e mais
+
+Existem etapas poderosas que englobam outras etapas que podem facilmente resolver problemas como repetir (`retry`) etapas até ter sucesso ou sair de uma etapa se ela demorar muito tempo (`timeout`).
+
+```
+pipeline {
+    agent any
+    stages {
+        stage('Deploy') {
+            steps {
+                retry(3) {
+                    sh './flakey-deploy.sh'
+                }
+
+                timeout(time: 3, unit: 'MINUTES') {
+                    sh './health-check.sh'
+                }
+            }
+        }
+    }
+}
+```
+
+O estágio de "Deploy" repete o script `flakey-deploy.sh` 3 vezes, e então espera 3 minutos para executar o script `health-check.sh`. Se o health check não completar em 3 minutos, o Pipeline será marcado como falha no estágio de "Deploy".
+
+Etapas "Wrapper" como `timeout` e `retry` podem conter outras etapas, incluindo `timeout` ou `retry`.
+
+Podemos compor estas etapas juntos. Por exemplo, se quisermos repetir nosso deploy 5 vezes, mas nunca demorar mais de 3 minutos no total antes de falhar o cenário:
+
+```
+pipeline {
+    agent any
+    stages {
+        stage('Deploy') {
+            steps {
+                timeout(time: 3, unit: 'MINUTES') {
+                    retry(5) {
+                        sh './flakey-deploy.sh'
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### Finalizando
+
+Quando o Pipeline termina de executar, pode ser necessário executar etapas de limpeza ou executar algumas ações com base no resultado do Pipeline. Essas ações podem ser executadas na seção de `post`.
+
+```
+pipeline {
+    agent any
+    stages {
+        stage('Test') {
+            steps {
+                sh 'echo "Fail!"; exit 1'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'This will always run'
+        }
+        success {
+            echo 'This will run only if successful'
+        }
+        failure {
+            echo 'This will run only if failed'
+        }
+        unstable {
+            echo 'This will run only if the run was marked as unstable'
+        }
+        changed {
+            echo 'This will run only if the state of the Pipeline has changed'
+            echo 'For example, if the Pipeline was previously failing but is now successful'
+        }
+    }
+}
+```
+
+
+
+
+
+
 
